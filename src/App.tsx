@@ -1,18 +1,12 @@
 import 'antd/dist/reset.css'
+import request from '@/utils/request'
 import { useEffect } from 'react'
-import Menu from './components/Menu'
-import { getList } from './api/test'
+
 function App() {
 	useEffect(() => {
-		getList().then((res) => {
-			console.log(res)
-		})
+		request.get('/api').then(console.log)
 	}, [])
-	return (
-		<div className="App">
-			<Menu></Menu>
-		</div>
-	)
+	return <div className="App"></div>
 }
 
 export default App

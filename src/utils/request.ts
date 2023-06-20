@@ -1,19 +1,22 @@
 import axios from 'axios'
-import { getToken } from './auth'
+import type { InternalAxiosRequestConfig, AxiosResponse } from 'axios'
 import { Modal } from 'antd'
+import { getToken } from './auth'
+console.log(process.env)
 const service = axios.create({
-	baseURL: process.env.BASE_API,
-	timeout: 5000,
+	baseURL: process.env.REACT_APP_BASE_API,
+	timeout: 60000,
 })
-service.interceptors.request.use((config: any) => {
+
+service.interceptors.request.use((config: InternalAxiosRequestConfig) => {
 	if (getToken()) {
 		config.headers['Authorization'] = `Bearer ${getToken()}`
 	}
 	return config
 })
 
-service.interceptors.response.use((response) => {
-	const [modal, contextHolder] = Modal.useModal()
+service.interceptors.response.use((response: AxiosResponse) => {
+	const [modal] = Modal.useModal()
 	const res = response.data
 	if (res.code === 401) {
 		// 未登录，或者token过期
