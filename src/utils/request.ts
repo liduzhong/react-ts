@@ -2,7 +2,7 @@ import axios from 'axios'
 import type { InternalAxiosRequestConfig, AxiosResponse } from 'axios'
 import { Modal } from 'antd'
 import { getToken } from './auth'
-console.log(process.env)
+
 const service = axios.create({
 	baseURL: process.env.REACT_APP_BASE_API,
 	timeout: 60000,
