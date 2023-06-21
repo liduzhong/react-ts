@@ -13,7 +13,8 @@
 		"moduleResolution": "node",
 		"resolveJsonModule": true,
 		"isolatedModules": true,
-		"noEmit": true,
+		"allowUnusedLabels": false,
+		"allowUnreachableCode": false,
 		"jsx": "react-jsx",
 		"baseUrl": ".",
 		"paths": {
