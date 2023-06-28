@@ -1,13 +1,13 @@
 import axios from 'axios'
-import type { InternalAxiosRequestConfig, AxiosResponse } from 'axios'
-import { Modal } from 'antd'
+import type { InternalAxiosRequestConfig, AxiosResponse, AxiosError } from 'axios'
+import { Modal, message } from 'antd'
 import { getToken } from './auth'
 import { createSign } from './crypto'
 
 axios.defaults.headers['Content-Type'] = 'application/json;charset=utf-8'
 
 const service = axios.create({
-	baseURL: 'http://192.168.10.12:8100',
+	baseURL: process.env.REACT_APP_BASE_API,
 	timeout: 60000,
 })
 
@@ -68,33 +68,43 @@ service.interceptors.request.use(
 		}
 		return config
 	},
-	(error: any) => {
-		console.log(error)
-		Promise.reject(error)
+	(error: AxiosError) => {
+		return Promise.reject(error)
 	}
 )
-// service.interceptors.request.use((config: InternalAxiosRequestConfig) => {
-// 	if (getToken()) {
-// 		config.headers['Authorization'] = `Bearer ${getToken()}`
-// 	}
-// 	return config
-// })
 
-service.interceptors.response.use((response: AxiosResponse) => {
-	// const res = response.data
-	// if (res.code === 401) {
-	// 	// 未登录，或者token过期
-	// 	modal.confirm({
-	// 		title: 'Confirm',
-	// 		content: 'You have been logged out, you can cancel to stay on this page, or log in again',
-	// 		okText: 'Re-Login',
-	// 		cancelText: 'Cancel',
-	// 		type: 'warning',
-	// 	})
-	// }
-
-	return response.data
-})
+service.interceptors.response.use(
+	(response: AxiosResponse) => {
+		const {
+			resultStateVo: { code, msg },
+		} = response.data
+		if (code === 401) {
+			// 未登录，或者token过期
+			Modal.confirm({
+				title: '提示',
+				content: '您已经登出，您可以取消留在该页面，或重新登录',
+				okText: '重新登录',
+				cancelText: '取消',
+				type: 'warning',
+			})
+		} else if (code !== 200) {
+			message.error(msg || 'Error')
+		}
+		return response.data
+	},
+	(error: AxiosError) => {
+		let { message: msg } = error
+		if (msg === 'Network Error') {
+			msg = '系统接口连接异常'
+		} else if (msg.includes('timeout')) {
+			msg = '系统接口请求超时'
+		} else if (msg.includes('Request failed with status code')) {
+			msg = '系统接口' + msg.substr(msg.length - 3) + '异常'
+		}
+		message.error(msg)
+		return Promise.reject(error)
+	}
+)
 
 /**
  * 从1970年开始的毫秒数然后截取10位变成 从1970年开始的秒数

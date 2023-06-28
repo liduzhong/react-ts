@@ -35,3 +35,12 @@ export function editCrossSellerConsumeRatio(data: any) {
 		data: { data: data },
 	})
 }
+
+// 查询商家列表
+export function getInfoSellerList(query: { sellerName: string }) {
+	return request({
+		url: '/crmSellerRechargeAmountRegularConfig/getInfoSellerList',
+		method: 'post',
+		data: { data: query },
+	})
+}
